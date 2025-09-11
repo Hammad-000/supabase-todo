@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+     
+      <script src="https://cdn.tailwindcss.com"></script>
+       
+   
+<body class="bg-gray-100 min-h-screen flex items-center justify-center px-4">
+
+
+  
+  <main class="bg-white w-full max-w-md rounded-lg shadow-lg p-6 sm:p-8 space-y-4">
+    <button id="logoutBtn"
+  class="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-red-700 transition">
+  Logout
+</button>
+    <h2 class="text-3xl font-bold text-center text-blue-600">To-Do List</h2>
+
+    
+    <input id="search" type="search" placeholder="Search tasks"
+      class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-blue-700" />
+
+   
+    <input id="taskInput" type="text" placeholder="Add a new task"
+      class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-blue-700" />
+    
+    <button id="addTask"
+      class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Add Task</button>
+
+   
+    <ul id="taskList" class="space-y-2"></ul>
+  </main>
+
+</body>
+
+    
+   
+
+<script src="app.js"></script>
+     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</body>
+</html>
