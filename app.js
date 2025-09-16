@@ -69,16 +69,159 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ============ To-Do Logic (Dashboard only) ============
+//   //============== todo data  ==========
+
+
+console.log("Supabase client:", supabase);
+
+//   // ============ To-Do Logic (Dashboard only) ============
   const addTaskBtn = document.getElementById("addTask");
   const searchTask = document.getElementById("search");
   const taskInput = document.getElementById("taskInput");
   const taskList = document.getElementById("taskList");
 
   if (addTaskBtn && taskInput && taskList) {
-    addTaskBtn.addEventListener('click', () => {
+  addTaskBtn.addEventListener('click', async () => {
+    const taskText = taskInput.value.trim();
+    if (taskText === '') return;
+
+    // Get current user
+    const {
+      data: { user },
+      error: userError
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      console.error('User not logged in');
+      alert('You must be logged in to add tasks.');
+      return;
+    }
+
+    // Insert task with user_id
+    const { data, error } = await supabase
+      .from('todo')
+      .insert([{ task: taskText, user_id: user.id }]);
+
+    if (error) {
+      console.error('Error saving task:', error.message);
+      return;
+    }
+
+    const insertedTask = data[0]; // Get the inserted task with its id
+
+    // Render the new task in UI
+    const li = document.createElement('li');
+    li.className = 'flex justify-between items-center text-gray-800 border border-gray-400 rounded px-3 py-1 bg-gray-100';
+
+    const span = document.createElement('span');
+    span.textContent = taskText;
+
+    const actions = document.createElement('div');
+    actions.className = 'space-x-2';
+
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.className = 'text-blue-500 hover:underline text-sm';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.className = 'text-red-500 hover:underline text-sm';
+
+    deleteBtn.addEventListener('click', async () => {
+      li.remove();
+      await supabase.from('todo').delete().eq('id', insertedTask.id);
+    });
+
+    editBtn.addEventListener('click', async () => {
+      if (editBtn.textContent === 'Edit') {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = span.textContent;
+        input.className = 'border border-gray-300 rounded px-2 py-1 w-full mr-2 text-sm';
+        li.insertBefore(input, span);
+        li.removeChild(span);
+        editBtn.textContent = 'Save';
+      } else {
+        const input = li.querySelector('input');
+        const newText = input.value.trim();
+        if (newText !== '') {
+          span.textContent = newText;
+          li.insertBefore(span, input);
+          li.removeChild(input);
+          editBtn.textContent = 'Edit';
+
+          await supabase.from('todo').update({ task: newText }).eq('id', insertedTask.id);
+        }
+      }
+    });
+
+    actions.appendChild(editBtn);
+    actions.appendChild(deleteBtn);
+    li.appendChild(span);
+    li.appendChild(actions);
+    taskList.appendChild(li);
+
+    taskInput.value = '';
+  });
+}
+
+// async function loadTasksFromSupabase() {
+//   const {
+//     data: { user },
+//     error: userError
+//   } = await supabase.auth.getUser();
+
+//   if (userError || !user) {
+//     console.error('User not logged in.');
+//     return;
+//   }
+
+//   const { data, error } = await supabase
+//     .from('todo')
+//     .select('*')
+//     .eq('user_id', user.id);
+
+//   if (error) {
+//     console.error('Error fetching tasks:', error.message);
+//     return;
+//   }
+
+//   data.forEach(taskItem => {
+//     // your rendering code here
+//   });
+// }
+
+
+
+// const {
+//   data: { user }
+// } = await supabase.auth.getUser();
+
+// if (user) {
+//   await supabase.from('todo').insert([{ task: taskText, user_id: user.id }]);
+// }
+
+
+  
+  if (addTaskBtn && taskInput && taskList) {
+    addTaskBtn.addEventListener('click', async () => {
+
+      
       const taskText = taskInput.value.trim();
       if (taskText !== '') {
+ const { data, error } = await supabase
+    .from('todo')
+    .insert([{ task: taskText }]);  // You can also include user_id if needed
+
+  if (error) {
+    console.error('Error saving task:', error.message);
+    return;
+  }
+
+  console.log('Task saved:', data);
+
+
+
         const li = document.createElement('li');
         li.className = 'flex justify-between items-center text-gray-800 border border-gray-400 rounded px-3 py-1 bg-gray-100';
 
@@ -146,8 +289,24 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
-});
 
+async function loadTasksFromSupabase() {
+  const { data, error } = await supabase .from('todo') .select('*');
+
+  if (error) {
+    console.error('Error fetching tasks:', error.message);
+    return;
+  }
+
+  console.log('Fetched tasks:', data);
+  // Optionally: renderTasks(data);
+}
+if (taskList) {
+  loadTasksFromSupabase(); // 👈 Call here if on dashboard
+}
+
+
+});
 
 
 
