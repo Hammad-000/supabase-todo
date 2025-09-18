@@ -30,7 +30,15 @@
     <button id="addTask"
       class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">Add Task</button>
       
-    <input type="url">  
+  <div id="drag-area" class="border-2 border-dashed p-8 text-center bg-gray-100 rounded-lg">
+  <p>Drag & drop your image here, or click to select</p>
+  <input id="fileInput" type="file" accept="image/*" class="hidden" />
+</div>
+
+<div id="uploadedImageContainer" class="mt-4"></div>
+
+
+<div id="uploadedImageContainer" class="mt-4"></div>  
    
     <ul id="taskList" class="space-y-2"></ul>
   </main>

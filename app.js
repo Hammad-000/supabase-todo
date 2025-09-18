@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginBtn = document.getElementById("login");
   const logoutBtn = document.getElementById("logoutBtn");
 
+
+  
+
   // Only attach auth events if elements exist
   if (loginBtn && emailInput && passwordInput) {
     loginBtn.addEventListener('click', () => {
@@ -69,10 +72,77 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  /// ================= image bucket =========================///
+
+
+  // DOM Elements
+ 
+   const dragArea = document.getElementById('drag-area');
+  const fileInput = document.getElementById('fileInput');
+  const uploadedImageContainer = document.getElementById('uploadedImageContainer');
+
+  // Open file dialog when clicking the drag area
+  dragArea.addEventListener('click', () => fileInput.click());
+
+  // Handle file drop
+  dragArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dragArea.classList.add('bg-blue-100');
+  });
+
+  dragArea.addEventListener('dragleave', () => {
+    dragArea.classList.remove('bg-blue-100');
+  });
+
+  dragArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      uploadImage(file);
+    }
+    dragArea.classList.remove('bg-blue-100');
+  });
+
+  // Handle file input change
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      uploadImage(file);
+    }
+  });
+
+  // Upload image to Supabase Storage
+  async function uploadImage(file) {
+    const fileName = `${Date.now()}_${file.name}`;
+
+    // Upload the image to the 'images' bucket
+    const { data, error } = await supabase.storage
+      .from('images') // Your Supabase bucket name
+      .upload(fileName, file);
+
+    if (error) {
+      console.error('Error uploading image:', error.message);
+      return;
+    }
+
+    // Get the URL of the uploaded image
+    const imageUrl = `${supabaseUrl}/storage/v1/object/public/images/${data.path}`;
+
+    // Display the uploaded image
+    const imgElement = document.createElement('img');
+    imgElement.src = imageUrl;
+    imgElement.classList.add('w-64', 'h-64', 'object-cover', 'rounded-lg');
+    uploadedImageContainer.innerHTML = ''; // Clear previous image
+    uploadedImageContainer.appendChild(imgElement);
+
+    alert('Image uploaded successfully!');
+  }
+
 
 
 
 console.log("Supabase client:", supabase);
+
 
 //   // ============ To-Do Logic (Dashboard only) ============
   const addTaskBtn = document.getElementById("addTask");
@@ -80,89 +150,7 @@ console.log("Supabase client:", supabase);
   const taskInput = document.getElementById("taskInput");
   const taskList = document.getElementById("taskList");
 
-  if (addTaskBtn && taskInput && taskList) {
-  addTaskBtn.addEventListener('click', async () => {
-    const taskText = taskInput.value.trim();
-    if (taskText === '') return;
-
-    // Get current user
-    const {
-      data: { user },
-      error: userError
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      console.error('User not logged in');
-      alert('You must be logged in to add tasks.');
-      return;
-    }
-
-   
-    const { data, error } = await supabase
-      .from('todo')
-      .insert([{ task: taskText, user_id: user.id }]);
-
-    if (error) {
-      console.error('Error saving task:', error.message);
-      return;
-    }
-
-    const insertedTask = data[0]; 
-
-    const li = document.createElement('li');
-    li.className = 'flex justify-between items-center text-gray-800 border border-gray-400 rounded px-3 py-1 bg-gray-100';
-
-    const span = document.createElement('span');
-    span.textContent = taskText;
-
-    const actions = document.createElement('div');
-    actions.className = 'space-x-2';
-
-    const editBtn = document.createElement('button');
-    editBtn.textContent = 'Edit';
-    editBtn.className = 'text-blue-500 hover:underline text-sm';
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.className = 'text-red-500 hover:underline text-sm';
-
-    deleteBtn.addEventListener('click', async () => {
-      li.remove();
-      await supabase.from('todo').delete().eq('id', insertedTask.id);
-    });
-
-    editBtn.addEventListener('click', async () => {
-      if (editBtn.textContent === 'Edit') {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = span.textContent;
-        input.className = 'border border-gray-300 rounded px-2 py-1 w-full mr-2 text-sm';
-        li.insertBefore(input, span);
-        li.removeChild(span);
-        editBtn.textContent = 'Save';
-      } else {
-        const input = li.querySelector('input');
-        const newText = input.value.trim();
-        if (newText !== '') {
-          span.textContent = newText;
-          li.insertBefore(span, input);
-          li.removeChild(input);
-          editBtn.textContent = 'Edit';
-
-          await supabase.from('todo').update({ task: newText }).eq('id', insertedTask.id);
-        }
-      }
-    });
-
-    actions.appendChild(editBtn);
-    actions.appendChild(deleteBtn);
-    li.appendChild(span);
-    li.appendChild(actions);
-    taskList.appendChild(li);
-
-    taskInput.value = '';
-  });
-}
+  
 
 
   
