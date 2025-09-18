@@ -1,37 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List</title>
-  
-    <link rel="stylesheet" href="style.css">
-  
-       <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
-      
-    
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>To-Do List</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
+<body class="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 min-h-screen flex items-center justify-center">
 
-  
-  
-  <div class="form-container">
-    <h2>Login / Sign Up</h2>
-    <input type="email" id="email" placeholder="Email" required />
-    <br />
-    <input type="password" id="password" placeholder="Password" required />
-    <br />
-    <button id="signup">Sign Up</button>
-    <button  id="login">Login</button>
+  <div class="bg-white bg-opacity-90 rounded-lg shadow-lg p-8 max-w-sm w-full">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Login / Sign Up</h2>
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Email"
+      required
+      class="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+    />
+    <input
+      type="password"
+      id="password"
+      placeholder="Password"
+      required
+      class="w-full p-3 mb-6 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+    />
+
+    <div class="flex space-x-4">
+      <button
+        id="signup"
+        class="flex-1 bg-purple-600 text-white py-3 rounded-md hover:bg-purple-700 transition"
+      >
+        Sign Up
+      </button>
+      <button
+        id="login"
+        class="flex-1 bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 transition"
+      >
+        Login
+      </button>
+    </div>
   </div>
-  
 
-
-
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
-<script src="app.js"></script>
-
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
 </body>
 </html>
