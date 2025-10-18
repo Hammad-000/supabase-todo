@@ -1,13 +1,4 @@
 
-
-// const supabaseUrl = 'https://ctqdsnvpqgzuqfanjhdq.supabase.co';
-// //const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0cWRzbnZwcWd6dXFmYW5qaGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3Nzg5NTksImV4cCI6MjA3MjM1NDk1OX0.zBh2-jNve1EYD53QtbLFg3llTEBJnFucAUAYRE4OaeY';
-// const supabaseKey ='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0cWRzbnZwcWd6dXFmYW5qaGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3Nzg5NTksImV4cCI6MjA3MjM1NDk1OX0.zBh2-jNve1EYD53QtbLFg3llTEBJnFucAUAYRE4OaeY'
-// const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-
-// import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
 document.addEventListener('DOMContentLoaded', () => {
   const supabaseUrl = 'https://ctqdsnvpqgzuqfanjhdq.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0cWRzbnZwcWd6dXFmYW5qaGRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3Nzg5NTksImV4cCI6MjA3MjM1NDk1OX0.zBh2-jNve1EYD53QtbLFg3llTEBJnFucAUAYRE4OaeY';
@@ -51,26 +42,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  async function signUp(email, password) {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      console.error('Error signing up:', error.message);
-    } else {
-      console.log('Sign-up response:', data);
-      alert('Check your email for a confirmation link.');
-      window.location.href = 'dashboard.html';
-    }
-  }
-
   async function logIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      console.error('Error logging in:', error.message);
-    } else {
-      console.log('User logged in:', data);
-      window.location.href = 'dashboard.html';
-    }
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    console.error('Error logging in:', error.message);
+  } else {
+    console.log('User logged in:', data);
+    const user_id = data.user.id;  // Capture the user ID after successful login
+    localStorage.setItem('user_id', user_id); // Save user ID to localStorage
+    window.location.href = 'dashboard.html';
   }
+}
+
+async function signUp(email, password) {
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error) {
+    console.error('Error signing up:', error.message);
+  } else {
+    console.log('Sign-up response:', data);
+    const user_id = data.user.id;  // Capture the user ID after successful sign-up
+    localStorage.setItem('user_id', user_id); // Save user ID to localStorage
+    alert('Check your email for a confirmation link.');
+    window.location.href = 'dashboard.html';
+  }
+}
+
+
 
   /// ================= image bucket =========================///
 
@@ -153,107 +150,82 @@ console.log("Supabase client:", supabase);
   
 
 
-  
   if (addTaskBtn && taskInput && taskList) {
-    addTaskBtn.addEventListener('click', async () => {
+  addTaskBtn.addEventListener('click', async () => {
+    const taskText = taskInput.value.trim();
+    if (taskText !== '') {
+      const user_id = localStorage.getItem('user_id'); // Retrieve the user ID from localStorage
+
+      if (!user_id) {
+        console.error('User not logged in. Please log in first.');
+        return;
+      }
 
       
-      const taskText = taskInput.value.trim();
-      if (taskText !== '') {
- const { data, error } = await supabase
-    .from('todo')
-    .insert([{ task: taskText }]);  // You can also include user_id if needed
+    const { data, error } = await supabase
+  .from('todo')
+  .insert([{ task: taskText, user_id : user_id }]);
 
-  if (error) {
-    console.error('Error saving task:', error.message);
-    return;
-  }
+if (error) {
+  console.error('Error saving task:', error.message);
+  return;
+}
 
-  console.log('Task saved:', data);
-
+console.log('Task:', taskText);
+console.log('User ID:', user_id);
 
 
-        const li = document.createElement('li');
-        li.className = 'flex justify-between items-center text-gray-800 border border-gray-400 rounded px-3 py-1 bg-gray-100';
+      const li = document.createElement('li');
+      li.className = 'flex justify-between items-center text-gray-800 border border-gray-400 rounded px-3 py-1 bg-gray-100';
 
-        const span = document.createElement('span');
-        span.textContent = taskText;
+      const span = document.createElement('span');
+      span.textContent = taskText;
 
-        const actions = document.createElement('div');
-        actions.className = 'space-x-2';
+      const actions = document.createElement('div');
+      actions.className = 'space-x-2';
 
-        const editBtn = document.createElement('button');
-        editBtn.textContent = 'Edit';
-        editBtn.className = 'text-blue-500 hover:underline text-sm';
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Edit';
+      editBtn.className = 'text-blue-500 hover:underline text-sm';
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.className = 'text-red-500 hover:underline text-sm';
-        deleteBtn.addEventListener('click', () => {
-          li.remove();
-        });
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+      deleteBtn.className = 'text-red-500 hover:underline text-sm';
+      deleteBtn.addEventListener('click', () => {
+        li.remove();
+      });
 
-        editBtn.addEventListener('click', () => {
-          if (editBtn.textContent === 'Edit') {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = span.textContent;
-            input.className = 'border border-gray-300 rounded px-2 py-1 w-full mr-2 text-sm';
+      editBtn.addEventListener('click', () => {
+        if (editBtn.textContent === 'Edit') {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = span.textContent;
+          input.className = 'border border-gray-300 rounded px-2 py-1 w-full mr-2 text-sm';
 
-            li.insertBefore(input, span);
-            li.removeChild(span);
-            editBtn.textContent = 'Save';
-          } else {
-            const newText = li.querySelector('input').value.trim();
-            if (newText !== '') {
-              span.textContent = newText;
-            }
-            li.insertBefore(span, li.querySelector('input'));
-            li.removeChild(li.querySelector('input'));
-            editBtn.textContent = 'Edit';
+          li.insertBefore(input, span);
+          li.removeChild(span);
+          editBtn.textContent = 'Save';
+        } else {
+          const newText = li.querySelector('input').value.trim();
+          if (newText !== '') {
+            span.textContent = newText;
           }
-        });
-
-        actions.appendChild(editBtn);
-        actions.appendChild(deleteBtn);
-
-        li.appendChild(span);
-        li.appendChild(actions);
-
-        taskList.appendChild(li);
-        taskInput.value = '';
-      }
-    });
-  }
-
-  if (searchTask && taskList) {
-    searchTask.addEventListener('input', () => {
-      const searchTerm = searchTask.value.toLowerCase();
-      const tasks = taskList.getElementsByTagName('li');
-
-      Array.from(tasks).forEach(task => {
-        const span = task.querySelector('span');
-        if (span) {
-          const taskText = span.textContent.toLowerCase();
-          task.style.display = taskText.includes(searchTerm) ? '' : 'none';
+          li.insertBefore(span, li.querySelector('input'));
+          li.removeChild(li.querySelector('input'));
+          editBtn.textContent = 'Edit';
         }
       });
-    });
-  }
 
-async function loadTasksFromSupabase() {
-  const { data, error } = await supabase .from('todo') .select('*');
+      actions.appendChild(editBtn);
+      actions.appendChild(deleteBtn);
 
-  if (error) {
-    console.error('Error fetching tasks:', error.message);
-    return;
-  }
+      li.appendChild(span);
+      li.appendChild(actions);
 
-  console.log('Fetched tasks:', data);
-  // Optionally: renderTasks(data);
-}
-if (taskList) {
-  loadTasksFromSupabase(); 
+      taskList.appendChild(li);
+      taskInput.value = '';
+    }
+  });
 }
 
 
